@@ -5,24 +5,64 @@ using UnityEngine;
 public class PlayerController : MonoBehaviour
 {
     [SerializeField] Animator animator;
-    float _randomNumber;
+    float _idleStartTime;
+    float _idleMinLoopingTime = 1f;
+    private float idle2AnimationTime = 3f;
+    
+
 
     // Start is called before the first frame update
     void Start()
     {
-        _randomNumber = Random.Range(0, 10);
+        _idleStartTime = Time.time;
     }
-
     // Update is called once per frame
     void Update()
     {
-        StartCoroutine(AnimateIdle(_randomNumber));
-    }
+        if (Time.time > _idleMinLoopingTime + _idleStartTime)
+        {
+            int randomNumber = Random.Range(0, 10);
 
-    IEnumerator AnimateIdle(float idleTime)
+            if (randomNumber >= 5)
+            {
+                animator.SetTrigger("IdleB");
+                _idleStartTime = Time.time + 3f;
+            }
+            else
+                _idleStartTime = Time.time;
+
+        }
+        
+
+
+
+
+
+        MovePlayer();
+    }
+    void MovePlayer()
     {
-        yield return new WaitForSeconds(idleTime);
-        animator.SetTrigger("IdleB");
+
+        transform.position += GetInput() * 10 * Time.deltaTime;
+        
+
+        if (GetInput()!= Vector3.zero) {
+            animator.SetBool("isWalking", true);     
+        }
+
+        else
+        {
+            animator.SetBool("isWalking", false);
+            _idleStartTime = Time.time;
+        }
     }
 
+    Vector3 GetInput()
+    {
+        float xMove = Input.GetAxisRaw("Horizontal");
+        float zMove = Input.GetAxisRaw("Vertical");
+
+        Vector3 movement = new Vector3(xMove, 0, zMove);
+        return movement;
+    }
 }// CLASS
